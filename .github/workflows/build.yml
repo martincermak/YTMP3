@@ -1,0 +1,27 @@
+mkdir -p .github/workflows
+cat > .github/workflows/build.yml <<'EOF'
+name: Build installer
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pyinstaller
+      - run: python -m PyInstaller --onefile --noconsole --name YTMP3 app.py
+      - run: choco install innosetup -y --no-progress
+      - run: '& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" installer.iss'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YTMP3-Setup
+          path: installer/YTMP3-Setup.exe
+EOF
+git add -f .github
+git commit -m "Add build workflow"
+git push
