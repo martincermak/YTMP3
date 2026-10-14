@@ -14,7 +14,7 @@ DisableProgramGroupPage=yes
 DisableDirPage=auto
 OutputDir=installer
 OutputBaseFilename=YTMP3-Setup
-Compression=lzma2
+Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
@@ -29,6 +29,8 @@ Name: "desktopicon"; Description: "Vytvořit ikonu na ploše"; Flags: unchecked
 
 [Files]
 Source: "dist\{#MyAppExe}"; DestDir: "{app}"; Flags: ignoreversion
+; závislosti stažené skriptem fetch_deps.py (yt-dlp, ffmpeg, ffprobe, deno)
+Source: "deps\*.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExe}"
@@ -38,5 +40,5 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExe}"; Tasks: deskto
 Filename: "{app}\{#MyAppExe}"; Description: "Spustit YT MP3"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
-; yt-dlp.exe, ffmpeg.exe a ffprobe.exe si appka stáhne sama, tak je při odinstalaci smažeme
+; yt-dlp se může aktualizovat samo, tak při odinstalaci smažeme celou složku
 Type: filesandordirs; Name: "{app}"

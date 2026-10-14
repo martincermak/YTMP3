@@ -1,10 +1,13 @@
 @echo off
 setlocal
-REM 1) Sestavi dist\YTMP3.exe   2) pokud je Inno Setup, sestavi installer\YTMP3-Setup.exe
+REM 1) stahne zavislosti do deps\   2) sestavi dist\YTMP3.exe
+REM 3) pokud je Inno Setup, sestavi installer\YTMP3-Setup.exe (se vsemi zavislostmi uvnitr)
 
-python -m pip install pyinstaller
+python -m pip install -r requirements.txt
 if errorlevel 1 goto :err
-python -m PyInstaller --onefile --noconsole --name YTMP3 app.py
+python fetch_deps.py
+if errorlevel 1 goto :err
+python -m PyInstaller --onefile --noconsole --name YTMP3 --collect-all customtkinter --hidden-import PIL._tkinter_finder app.py
 if errorlevel 1 goto :err
 
 set "ISCC="
@@ -18,6 +21,7 @@ if not defined ISCC goto :noinno
 if errorlevel 1 goto :err
 echo.
 echo Hotovo: installer\YTMP3-Setup.exe
+echo Test: nainstaluj a spust  python tests\e2e_test.py
 goto :end
 
 :noinno
