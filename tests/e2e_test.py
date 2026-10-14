@@ -7,7 +7,7 @@ Ověřuje, že:
   3. vznikne MP3 s velikostí > 0 a platnou hlavičkou (ID3 nebo MPEG sync).
 
 Zdroje (--source):
-  youtube  krátké video z YouTube ("Me at the zoo", 19 s) - výchozí
+  youtube  vlastní neveřejné (unlisted) 10s video, ID 8nNxyoJnZXM - výchozí
   local    3 s video vyrobené nainstalovaným ffmpeg a vystavené na lokálním HTTP
            serveru; nezávisí na žádné externí službě (deterministické)
 
@@ -36,7 +36,7 @@ for _stream in (sys.stdout, sys.stderr):
     except (AttributeError, ValueError):
         pass
 
-YOUTUBE_URL = os.environ.get("YTMP3_TEST_URL", "https://www.youtube.com/watch?v=jNQXAC9IVRM")
+YOUTUBE_URL = os.environ.get("YTMP3_TEST_URL", "https://www.youtube.com/watch?v=8nNxyoJnZXM")
 DEPS = ("yt-dlp.exe", "ffmpeg.exe", "ffprobe.exe", "deno.exe")
 TIMEOUT = 300
 BOT_MARKERS = ("not a bot", "sign in to confirm")
