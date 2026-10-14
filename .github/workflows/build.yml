@@ -17,6 +17,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -r requirements.txt
       - run: python fetch_deps.py
+      - run: Get-ChildItem deps | Format-Table Name, Length
       - run: python -m PyInstaller --onefile --noconsole --name YTMP3 --collect-all customtkinter --hidden-import PIL._tkinter_finder app.py
       - run: choco install innosetup -y --no-progress
       - run: '& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" installer.iss'
@@ -25,9 +26,12 @@ jobs:
           name: YTMP3-Setup
           path: installer/YTMP3-Setup.exe
 
+  # Deterministický E2E (bez YouTube): instalátor, závislosti, ffmpeg, MP3. Rozhoduje o release.
   e2e:
     needs: build
     runs-on: windows-latest
+    env:
+      PYTHONUTF8: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -42,8 +46,29 @@ jobs:
         run: |
           Start-Process -FilePath "setup\YTMP3-Setup.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/DIR=C:\YTMP3' -Wait
           Get-ChildItem C:\YTMP3 | Format-Table Name, Length
-      - name: E2E - lokální zdroj (instalátor, závislosti, ffmpeg, MP3)
+      - name: E2E - lokální zdroj
         run: python tests/e2e_test.py C:\YTMP3\YTMP3.exe --source local
+
+  # E2E proti skutečnému YouTube. Běží v pipeline, ale na YouTube-straně se může rozbít
+  # (blokace IP runneru, změny YouTube), proto neblokuje release.
+  e2e-youtube:
+    needs: build
+    runs-on: windows-latest
+    env:
+      PYTHONUTF8: '1'
+      YTMP3_VERBOSE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: YTMP3-Setup
+          path: setup
+      - name: Install silently
+        shell: pwsh
+        run: Start-Process -FilePath "setup\YTMP3-Setup.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/DIR=C:\YTMP3' -Wait
       - name: E2E - YouTube
         shell: pwsh
         run: |

@@ -264,6 +264,8 @@ def run_cli(args):
             return 2
         log.flush()
         cmd = build_command(tools["yt-dlp"], url, outdir, quality, False, True)
+        if os.environ.get("YTMP3_VERBOSE"):
+            cmd.insert(1, "-v")
         proc = subprocess.run(
             cmd, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT,
             creationflags=NO_WINDOW,

@@ -29,6 +29,13 @@ import sys
 import tempfile
 import threading
 
+# Windows runner má konzoli v cp1252 - česká diakritika by shodila print()
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
 YOUTUBE_URL = os.environ.get("YTMP3_TEST_URL", "https://www.youtube.com/watch?v=jNQXAC9IVRM")
 DEPS = ("yt-dlp.exe", "ffmpeg.exe", "ffprobe.exe", "deno.exe")
 TIMEOUT = 300
